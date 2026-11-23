@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Struktur Organisasi - PMR Wira SMK Negeri 1 Sagaranten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-fade struktur">
+<header>
+  <button class="hamburger" aria-label="Buka menu" aria-expanded="false">
+    <span class="hamburger-bars"><i class="fa-solid fa-bars"></i></span>
+    <span class="hamburger-x"><i class="fa-solid fa-xmark"></i></span>
+  </button>
+  <div class="logo-wrap">
+    <img src="assets/logo.png" alt="Logo">
+    <div class="logo-fallback">PW</div>
+  </div>
+  <div class="nav-overlay"></div>
+  <div class="nav-dropdown" role="menu">
+    <a href="index.html" role="menuitem">Beranda</a>
+    <a href="profil.html" role="menuitem">Profil</a>
+    <a href="struktur.html" role="menuitem">Struktur Organisasi</a>
+    <a href="pendaftaran.html" role="menuitem">Pendaftaran Anggota Baru</a>
+    <a href="kontak.html" role="menuitem">Kontak</a>
+  </div>
+  <h1 class="page-title">PMR WIRA SMK NEGERI 1 SAGARANTEN</h1>
+  <p class="page-subtitle">Struktur Organisasi</p>
+  <div class="header-divider" aria-hidden="true">
+    <span class="hd-line hd-line--l"></span>
+    <span class="hd-cross"><i class="fa-solid fa-plus"></i></span>
+    <span class="hd-line hd-line--r"></span>
+  </div>
+</header>
+
+<div class="container content-area page-fade">
+  <a href="index.html" class="btn-back">Kembali</a>
+  <div class="card reveal strukturs-judul">    <h2 class="section-title" style="text-align:center;"><i class="fa-solid fa-sitemap"></i> Struktur Kepengurusan</h2>
+    <hr class="section-divider">
+    <p style="text-align:center; color:var(--abu); font-size:0.9rem; margin:0;">Susunan Kepengurusan PMR Wira SMK Negeri 1 Sagaranten Periode 2025/2026</p>
+  </div>
+
+  <div class="card reveal strukturs-filter">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="strukturSearch" placeholder="Cari nama, jabatan, atau kelas...">
+      <button class="btn-clear" aria-label="Hapus pencarian">&times;</button>
+    </div>
+    <div class="filter-chips" role="radiogroup" aria-label="Filter kelompok">
+    </div>
+    <p class="result-info">Menampilkan 19 dari 19 pengurus</p>
+  </div>
+
+  <div class="struktur-data" role="list"></div>
+
+  <div class="no-results hidden">
+    <p>Tidak ada pengurus yang cocok</p>
+    <button type="button" onclick="window.location.reload()">Reset pencarian</button>
+  </div>
+</div>
+
+<div class="modal-overlay" role="dialog" aria-modal="true" aria-label="Detail pengurus"></div>
+
+<button class="btn-scrolltop" aria-label="Naik ke atas"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script src="js/script.js"></script>
+</body>
+</html>
