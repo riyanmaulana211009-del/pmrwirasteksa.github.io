@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - PMR Wira Steksa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-enter">
+  <button class="admin-hamburger" id="hamburger" aria-label="Buka Menu"><i class="fa-solid fa-bars"></i></button>
+  <div class="admin-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-sidebar" id="sidebar">
+    <div class="admin-sidebar-header">
+      <div class="logo">PW</div>
+      <h2>PMR Wira Steksa</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html" class="active" onclick="closeSidebar()"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+        <li><a href="pendaftaran.html" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
+        <li><a href="pengaturan.html" onclick="closeSidebar()"><i class="fa-solid fa-gear"></i> Pengaturan</a></li>
+      </ul>
+    </div>
+    <div class="admin-sidebar-footer">
+      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1><i class="fa-solid fa-chart-pie"></i> Dashboard</h1>
+      <div class="admin-user">
+        <div class="admin-user-avatar">PW</div>
+        <div class="admin-user-info">
+          <h3>Admin PMR</h3>
+          <p>admin@pmrste.sch.id</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card today">
+        <div class="stat-icon"><i class="fa-solid fa-user-plus"></i></div>
+        <div class="stat-number" id="statTotal">0</div>
+        <div class="stat-label">Total Pendaftar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+        <div class="stat-number" id="statToday">0</div>
+        <div class="stat-label">Pendaftar Hari Ini</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-number" id="statMenunggu">0</div>
+        <div class="stat-label">Status Menunggu</div>
+      </div>
+      <div class="stat-card dipertimbangkan">
+        <div class="stat-icon"><i class="fa-solid fa-eye"></i></div>
+        <div class="stat-number" id="statDipertimbangkan">0</div>
+        <div class="stat-label">Dipertimbangkan</div>
+      </div>
+      <div class="stat-card accepted">
+        <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
+        <div class="stat-number" id="statDiterima">0</div>
+        <div class="stat-label">Sudah Diterima</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-times-circle"></i></div>
+        <div class="stat-number" id="statDitolak">0</div>
+        <div class="stat-label">Ditolak</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a href="pendaftaran.html" class="btn-quick">
+        <i class="fa-solid fa-list"></i>
+        <span>Lihat Semua Pendaftar</span>
+      </a>
+      <a href="pengaturan.html" class="btn-quick">
+        <i class="fa-solid fa-user-shield"></i>
+        <span>Pengaturan Akun</span>
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Aktivitas Terkini</h3>
+        <a href="pendaftaran.html">Lihat Semua <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div id="recentList" class="table-container">
+        <!-- Data akan diisi oleh JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

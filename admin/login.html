@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin - PMR Wira Steksa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-enter">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">PW</div>
+        <h1>Admin Panel</h1>
+        <p>PMR Wira Steksa</p>
+      </div>
+
+      <div class="login-divider">ATAU</div>
+
+      <button type="button" class="btn-google" onclick="alert('Google Sign-In belum diaktifkan. Silakan hubungi administrator untuk mengonfigurasi autentikasi.')">
+        <i class="fa-brands fa-google"></i> Masuk dengan Google
+      </button>
+
+      <div class="auth-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>
+          <h4>Autentikasi Belum Aktif</h4>
+          <p>Tombol di atas adalah placeholder. Fitur login Google akan diaktifkan setelah konfigurasi backend selesai.</p>
+        </div>
+      </div>
+
+      <div class="back-to-site">
+        <a href="../../index.html"><i class="fa-solid fa-arrow-left"></i> Kembali ke Website Publik</a>
+      </div>
+    </div>
+  </div>
+  <script src="js/auth.js"></script>
+</body>
+</html>

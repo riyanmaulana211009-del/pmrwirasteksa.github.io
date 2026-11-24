@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Pendaftaran - PMR Wira Steksa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-enter">
+  <button class="admin-hamburger" id="hamburger" aria-label="Buka Menu"><i class="fa-solid fa-bars"></i></button>
+  <div class="admin-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-sidebar" id="sidebar">
+    <div class="admin-sidebar-header">
+      <div class="logo">PW</div>
+      <h2>PMR Wira Steksa</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html" onclick="closeSidebar()"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+        <li><a href="pendaftaran.html" class="active" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
+        <li><a href="pengaturan.html" onclick="closeSidebar()"><i class="fa-solid fa-gear"></i> Pengaturan</a></li>
+      </ul>
+    </div>
+    <div class="admin-sidebar-footer">
+      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1><i class="fa-solid fa-users"></i> Data Pendaftaran</h1>
+      <a href="dashboard.html" class="btn-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+    </div>
+
+    <div class="search-filter">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Cari nama, kelas, atau alasan...">
+      </div>
+      <button class="filter-chip active" id="filterSemua" onclick="filterStatus('semua')">Semua Pendaftar</button>
+      <button class="filter-chip" id="filterMenunggu" onclick="filterStatus('menunggu')">Menunggu</button>
+      <button class="filter-chip" id="filterDipertimbangkan" onclick="filterStatus('dipertimbangkan')">Dipertimbangkan</button>
+      <button class="filter-chip" id="filterDiterima" onclick="filterStatus('diterima')">Diterima</button>
+      <button class="filter-chip" id="filterDitolak" onclick="filterStatus('ditolak')">Ditolak</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-table-list"></i> Daftar Pendaftar</h3>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Kelas</th>
+              <th>Tanggal</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="pendaftaranTable">
+            <!-- Data akan diisi oleh JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/pendaftaran.js"></script>
+</body>
+</html>

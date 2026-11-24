@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Pendaftar - PMR Wira Steksa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-enter">
+  <button class="admin-hamburger" id="hamburger" aria-label="Buka Menu"><i class="fa-solid fa-bars"></i></button>
+  <div class="admin-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-sidebar" id="sidebar">
+    <div class="admin-sidebar-header">
+      <div class="logo">PW</div>
+      <h2>PMR Wira Steksa</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html" onclick="closeSidebar()"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+        <li><a href="pendaftaran.html" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
+        <li><a href="pengaturan.html" onclick="closeSidebar()"><i class="fa-solid fa-gear"></i> Pengaturan</a></li>
+      </ul>
+    </div>
+    <div class="admin-sidebar-footer">
+      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <div class="admin-topbar" style="margin-bottom: 24px;">
+      <button class="btn-back-detail" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar</button>
+    </div>
+
+    <div class="detail-header" id="detailHeader">
+      <div class="detail-avatar" id="detailAvatar">PW</div>
+      <h1 id="detailNama">Nama Pendaftar</h1>
+      <p id="detailKelas">Kelas</p>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <h4>Nama Lengkap</h4>
+        <p id="detailNamaLengkap">-</p>
+      </div>
+      <div class="detail-item">
+        <h4>Kelas</h4>
+        <p id="detailKelasView">-</p>
+      </div>
+      <div class="detail-item">
+        <h4>Tanggal Pendaftaran</h4>
+        <p id="detailTanggal">-</p>
+      </div>
+      <div class="detail-item">
+        <h4>Status</h4>
+        <p id="detailStatus">-</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-comment-dots"></i> Alasan & Harapan</h3>
+      </div>
+      <div class="detail-item" style="background: var(--abu-terang);">
+        <h4>Alasan Masuk PMR</h4>
+        <p id="detailAlasan" style="white-space: pre-wrap;">-</p>
+      </div>
+      <div class="detail-item" style="background: var(--abu-terang);">
+        <h4>Harapan Setelah Gabung</h4>
+        <p id="detailHarapan" style="white-space: pre-wrap;">-</p>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <button class="btn-status menunggu" onclick="updateStatus('menunggu')"><i class="fa-solid fa-clock"></i> Menunggu</button>
+      <button class="btn-status dipertimbangkan" onclick="updateStatus('dipertimbangkan')"><i class="fa-solid fa-eye"></i> Dipertimbangkan</button>
+      <button class="btn-status diterima" onclick="konfirmasiKeputusan('diterima')"><i class="fa-solid fa-check"></i> Diterima</button>
+      <button class="btn-status ditolak" onclick="konfirmasiKeputusan('ditolak')"><i class="fa-solid fa-times"></i> Ditolak</button>
+      <a href="#" class="btn-whatsapp" id="btnWa" style="margin-left: auto;"><i class="fa-brands fa-whatsapp"></i> Chat WhatsApp</a>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/detail.js"></script>
+</body>
+</html>
