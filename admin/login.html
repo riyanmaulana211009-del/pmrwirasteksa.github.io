@@ -1,49 +1,40 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-signin-client_id" content="ISI_CLIENT_ID_KAMU">
   <title>Login Admin - PMR Wira Steksa</title>
-
-  <link rel="stylesheet" href="css/admin.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .kotak {
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      max-width: 340px;
+      width: 90%;
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; color: #c0392b; }
+    p { color: #555; font-size: 14px; margin: 0 0 20px; }
+    #tombol-google { display: flex; justify-content: center; }
+  </style>
 </head>
-<body class="page-enter">
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="login-logo">PW</div>
-        <h1>Admin Panel</h1>
-        <p>PMR Wira Steksa</p>
-      </div>
-
-      <h3>Masuk dengan Google</h3>
-
-      <div id="g_id_onload"
-        data-client_id="233845011318-9cbh4ichb4v0uas56uuub7ml2dnc1m9v.apps.googleusercontent.com"
-        data-callback="onGoogleSignInSuccess">
-      </div>
-
-      <div class="g_id_signin"
-        data-type="standard"
-        data-size="large"
-        data-theme="outline"
-        data-text="signin_with"
-        data-shape="rectangular">
-      </div>
-
-      <div class="auth-info">
-        <p>Hanya akun admin yang diizinkan masuk.</p>
-      </div>
-
-      <div class="back-to-site">
-        <a href="../../index.html">Kembali ke Website Publik</a>
-      </div>
-    </div>
+<body>
+  <div class="kotak">
+    <h1>Admin PMR Wira Steksa</h1>
+    <p>Masuk menggunakan akun Google admin.</p>
+    <div id="tombol-google"></div>
   </div>
-
   <script src="js/auth.js"></script>
 </body>
 </html>
