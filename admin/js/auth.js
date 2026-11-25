@@ -1,71 +1,105 @@
-// ============================================================
-// PMR WIRA STEKSA - ADMIN PANEL AUTH
-// File: admin/js/auth.js
-// ============================================================
+const SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbxkZMFSUFp91J3q4CThO9lk0Hw8n445CXrM_I17AQuMmaDNDhGYKjYIDkhmrSCUHshFVA/exec';
+const ADMIN_EMAIL = 'riyanmaulana211009@gmail.com';
+const GOOGLE_CLIENT_ID =
+  '233845011318-9cbh4ichb4v0uas56uuub7ml2dnc1m9v.apps.googleusercontent.com';
 
-(function() {
-  'use strict';
+const isLoginPage = location.pathname.endsWith('login.html');
+const sudahLogin = sessionStorage.getItem('admin_logged_in') === 'true';
 
-  const ADMIN_EMAIL = 'admin@pmrste.sch.id';
-  const ADMIN_NAME = 'Admin PMR';
+if (isLoginPage && sudahLogin) {
+  location.href = 'dashboard.html';
+} else if (!isLoginPage && !sudahLogin) {
+  location.href = 'login.html';
+}
 
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    if (sidebar && overlay) {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('open');
+function handleCredentialResponse(response) {
+  const callbackName = 'cb_' + Date.now();
+  const params = new URLSearchParams({
+    action: 'verifikasi-token',
+    token: response.credential,
+    callback: callbackName
+  });
+
+  const script = document.createElement('script');
+
+  window[callbackName] = function (data) {
+    script.remove();
+    delete window[callbackName];
+
+    if (
+      data.success === true &&
+      data.verified === true &&
+      String(data.email).toLowerCase() === ADMIN_EMAIL
+    ) {
+      sessionStorage.setItem('admin_logged_in', 'true');
+      sessionStorage.setItem('admin_email', ADMIN_EMAIL);
+      sessionStorage.setItem('admin_token', response.credential);
+      window.location.href = 'dashboard.html';
+    } else {
+      alert(data.message || 'Akses Admin ditolak.');
     }
+  };
+
+  script.onerror = function () {
+    script.remove();
+    delete window[callbackName];
+    alert('Gagal menghubungi AdminAPI. Periksa deployment.');
+  };
+
+  script.src = SCRIPT_URL + '?' + params.toString();
+  document.body.appendChild(script);
+}
+
+function siapkanTombolGoogle() {
+  const tempat = document.getElementById('tombol-google');
+  if (!tempat) return;
+
+  if (!window.google || !google.accounts) {
+    setTimeout(siapkanTombolGoogle, 200);
+    return;
   }
 
-  function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementBy('overlay') || document.getElementById('overlay');
-    if (sidebar) sidebar.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+
+  google.accounts.id.renderButton(tempat, {
+    theme: 'outline',
+    size: 'large',
+    text: 'signin_with'
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
   }
+}
 
-  function logout() {
-    if (confirm('Yakin ingin keluar dari Admin Panel?')) {
-      sessionStorage.removeItem('pmr_admin_logged');
-      sessionStorage.removeItem('pmr_admin_email');
-      window.location.href = 'login.html';
-    }
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function logout() {
+  if (confirm('Yakin ingin keluar?')) {
+    sessionStorage.removeItem('admin_logged_in');
+    sessionStorage.removeItem('admin_email');
+    sessionStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
   }
+}
 
-  function initAuthUI() {
-    const hamburger = document.getElementById('hamburger');
-    const overlay = document.getElementById('overlay');
+window.handleCredentialResponse = handleCredentialResponse;
+window.toggleSidebar = toggleSidebar;
+window.closeSidebar = closeSidebar;
+window.logout = logout;
 
-    if (hamburger) {
-      hamburger.addEventListener('click', toggleSidebar);
-    }
-
-    // Set user info di topbar jika ada
-    const userNameEl = document.querySelector('.admin-user-info h3');
-    const userEmailEl = document.querySelector('.admin-user-info p');
-    if (userNameEl) userNameEl.textContent = ADMIN_NAME;
-    if (userEmailEl) userEmailEl.textContent = ADMIN_EMAIL;
-
-    // Set avatar inisial
-    const avatarEls = document.querySelectorAll('.admin-user-avatar, .detail-avatar, .login-logo');
-    avatarEls.forEach(el => {
-      if (el && !el.querySelector('img')) {
-        el.textContent = 'PW';
-      }
-    });
-  }
-
-  // Expose ke global
-  window.toggleSidebar = toggleSidebar;
-  window.closeSidebar = closeSidebar;
-  window.logout = logout;
-  window.initAuthUI = initAuthUI;
-
-  // Inisialisasi saat DOM siap
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuthUI);
-  } else {
-    initAuthUI();
-  }
-})();
+window.addEventListener('load', siapkanTombolGoogle);
