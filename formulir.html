@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="page-fade firebase-form">
+<body class="page-fade">
 <header>
   <button class="hamburger" aria-label="Buka menu" aria-expanded="false">
     <span class="hamburger-bars"><i class="fa-solid fa-bars"></i></span>
@@ -75,133 +75,6 @@
   </div>
 </div><button class="btn-scrolltop" aria-label="Naik ke atas"><i class="fa-solid fa-arrow-up"></i></button>
 
-<script type="module" src="js/firebase-init.js"></script>
-<script type="module">
-  import { db } from './js/firebase-init.js';
-  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const form = document.querySelector('form.daftar-form');
-  const btn = form.querySelector('.btn-submit');
-  const msg = document.querySelector('.msg-success');
-  const errMsg = document.querySelector('.form-error-msg');
-  const btnWa = document.querySelector('.btn-wa-confirm');
-  const namaInput = form.querySelector('input[name="nama"]');
-  const kelasInput = form.querySelector('input[name="kelas"]');
-  const alasanTextarea = form.querySelector('textarea[name="alasan"]');
-  const harapanTextarea = form.querySelector('textarea[name="harapan"]');
-  const honeypot = form.querySelector('input[name="website"]');
-
-  let lastSubmitTime = 0;
-  let isSubmitting = false;
-
-  function setupCounter(textarea, counter) {
-    textarea.addEventListener('input', function() {
-      counter.textContent = this.value.length + '/1000';
-    });
-  }
-  const counters = document.querySelectorAll('.char-counter');
-  if (alasanTextarea && counters[0]) setupCounter(alasanTextarea, counters[0]);
-  if (harapanTextarea && counters[1]) setupCounter(harapanTextarea, counters[1]);
-
-  function showError(input, message) {
-    input.classList.add('error');
-    var existing = input.parentNode.querySelector('.field-error');
-    if (existing) existing.remove();
-    var err = document.createElement('div');
-    err.className = 'field-error show';
-    err.textContent = message;
-    input.parentNode.appendChild(err);
-    input.focus();
-  }
-  function clearError(input) {
-    input.classList.remove('error');
-    var existing = input.parentNode.querySelector('.field-error');
-    if (existing) existing.remove();
-  }
-  function clearAllErrors() {
-    clearError(namaInput); clearError(kelasInput); clearError(alasanTextarea); clearError(harapanTextarea);
-  }
-  function showFormError(message) {
-    errMsg.textContent = message;
-    errMsg.style.display = 'block';
-  }
-  function hideFormError() {
-    errMsg.style.display = 'none';
-  }
-  function openWhatsApp(nama, kelas, alasan, harapan) {
-    var pesan = 'Halo, saya ingin konfirmasi pendaftaran PMR Wira.%0A%0A';
-    pesan += '*Nama:* ' + encodeURIComponent(nama) + '%0A';
-    pesan += '*Kelas:* ' + encodeURIComponent(kelas) + '%0A';
-    pesan += '*Alasan masuk PMR:* ' + encodeURIComponent(alasan) + '%0A';
-    pesan += '*Harapan:* ' + encodeURIComponent(harapan);
-    window.open('https://wa.me/6283808146592?text=' + pesan, '_blank');
-  }
-  btnWa.addEventListener('click', function() {
-    openWhatsApp(namaInput.value.trim(), kelasInput.value.trim(), alasanTextarea.value.trim(), harapanTextarea.value.trim());
-  });
-
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (isSubmitting) return;
-    if (honeypot && honeypot.value.trim() !== '') {
-      msg.classList.add('show');
-      form.reset();
-      counters.forEach(function(c) { c.textContent = '0/1000'; });
-      btnWa.style.display = 'none';
-      return;
-    }
-    var now = Date.now();
-    if (now - lastSubmitTime < 3000) {
-      showFormError('Tunggu beberapa saat sebelum mengirim lagi.');
-      return;
-    }
-    clearAllErrors();
-    hideFormError();
-    var valid = true;
-    if (!namaInput.value.trim()) { showError(namaInput, 'Nama lengkap harus diisi.'); valid = false; }
-    if (!kelasInput.value.trim()) { showError(kelasInput, 'Kelas harus diisi.'); valid = false; }
-    if (!alasanTextarea.value.trim()) { showError(alasanTextarea, 'Alasan masuk PMR harus diisi.'); valid = false; }
-    if (!harapanTextarea.value.trim()) { showError(harapanTextarea, 'Harapan Anda harus diisi.'); valid = false; }
-    if (!valid) return;
-    isSubmitting = true;
-    lastSubmitTime = now;
-    btn.classList.add('loading');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Mengirim...';
-    try {
-      addDoc(collection(db, 'pendaftaran'), {
-        nama: namaInput.value.trim(),
-        kelas: kelasInput.value.trim(),
-        alasan: alasanTextarea.value.trim(),
-        harapan: harapanTextarea.value.trim(),
-        createdAt: serverTimestamp()
-      }).then(function() {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Pendaftaran';
-        msg.classList.add('show');
-        btnWa.style.display = 'inline-flex';
-        form.reset();
-        counters.forEach(function(c) { c.textContent = '0/1000'; });
-        hideFormError();
-      }).catch(function(err) {
-        console.error('Firestore error:', err);
-        btn.classList.remove('loading');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Pendaftaran';
-        showFormError('Pendaftaran gagal terkirim. Periksa koneksi lalu coba lagi.');
-        isSubmitting = false;
-      });
-    } catch (err) {
-      console.error('Submit error:', err);
-      btn.classList.remove('loading');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Pendaftaran';
-      showFormError('Pendaftaran gagal terkirim. Periksa koneksi lalu coba lagi.');
-      isSubmitting = false;
-    }
-  });
-</script>
 
 <script src="js/script.js"></script>
 </body>

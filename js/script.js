@@ -428,6 +428,25 @@
         });
       }
 
+      // Dipanggil oleh konten.js setelah isi website dimuat dari spreadsheet
+      window.strukturRefresh = function() {
+        try {
+          data.forEach(function(p, i) {
+            var n = i + 1;
+            ['nama', 'jabatan', 'kelas'].forEach(function(f) {
+              var el = document.querySelector('[data-konten="struktur_' + n + '_' + f + '"]');
+              if (el) {
+                var v = el.textContent.trim();
+                if (v) p[f] = v;
+              }
+            });
+          });
+          renderData();
+        } catch (e) {
+          console.error('Refresh struktur error:', e);
+        }
+      };
+
       renderChips();
       renderData();
 

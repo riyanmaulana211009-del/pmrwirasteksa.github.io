@@ -35,6 +35,7 @@ function handleCredentialResponse(response) {
       sessionStorage.setItem('admin_logged_in', 'true');
       sessionStorage.setItem('admin_email', ADMIN_EMAIL);
       sessionStorage.setItem('admin_token', response.credential);
+      if (data.sesi) sessionStorage.setItem('admin_sesi', data.sesi);
       window.location.href = 'dashboard.html';
     } else {
       alert(data.message || 'Akses Admin ditolak.');
@@ -93,6 +94,7 @@ function logout() {
     sessionStorage.removeItem('admin_logged_in');
     sessionStorage.removeItem('admin_email');
     sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_sesi');
     window.location.href = 'login.html';
   }
 }

@@ -1,114 +1,118 @@
-(function () {
-  'use strict';
+const ADMIN_EMAIL = 'riyanmaulana211009@gmail.com';
+const GOOGLE_CLIENT_ID =
+  '233845011318-9cbh4ichb4v0uas56uuub7ml2dnc1m9v.apps.googleusercontent.com';
+const STATUS_BOLEH = ['menunggu', 'dipertimbangkan', 'diterima', 'ditolak'];
 
-  let pendaftaranData = [];
-  let currentFilter = 'semua';
-  let currentSearch = '';
+function jsonp(callback, data) {
+  const safeCallback = /^[a-zA-Z_$][0-9a-zA-Z_$.]*$/.test(callback)
+    ? callback
+    : 'callback';
+  return ContentService
+    .createTextOutput(safeCallback + '(' + JSON.stringify(data) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
 
-  const statusLabel = {
-    menunggu: 'Menunggu',
-    dipertimbangkan: 'Dipertimbangkan',
-    diterima: 'Diterima',
-    ditolak: 'Ditolak'
-  };
+function verifikasiGoogle(token) {
+  if (!token) throw new Error('Token Google tidak ditemukan.');
 
-  function formatTanggal(value) {
-    if (!value) return '-';
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return value;
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
+  const url =
+    'https://oauth2.googleapis.com/tokeninfo?id_token=' +
+    encodeURIComponent(token);
+  const response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+
+  if (response.getResponseCode() !== 200) {
+    throw new Error('Token Google tidak valid.');
   }
 
-  function renderTable() {
-    const tbody = document.getElementById('pendaftaranTable');
-    if (!tbody) return;
+  const user = JSON.parse(response.getContentText());
 
-    const filtered = pendaftaranData.filter(p => {
-      const nama = String(p.nama || '').toLowerCase();
-      const kelas = String(p.kelas || '').toLowerCase();
-      const search = currentSearch.toLowerCase();
+  if (
+    user.aud !== GOOGLE_CLIENT_ID ||
+    user.email_verified !== 'true' ||
+    String(user.email).toLowerCase() !== ADMIN_EMAIL
+  ) {
+    throw new Error('Akun Google tidak memiliki akses Admin.');
+  }
+  return user.email;
+}
 
-      return (
-        (nama.includes(search) || kelas.includes(search)) &&
-        (currentFilter === 'semua' || p.status === currentFilter)
-      );
-    });
+function ambilSheet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Pendaftaran');
+  if (!sheet) throw new Error('Sheet Pendaftaran tidak ditemukan.');
+  if (sheet.getMaxColumns() < 6) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), 6 - sheet.getMaxColumns());
+  }
+  if (sheet.getRange(1, 6).getValue() === '') {
+    sheet.getRange(1, 6).setValue('Status');
+  }
+  return sheet;
+}
 
-    if (!filtered.length) {
-      tbody.innerHTML =
-        '<tr><td colspan="5">Belum ada data pendaftar.</td></tr>';
-      return;
+function bacaPendaftaranAdmin() {
+  const sheet = ambilSheet();
+  const jumlah = sheet.getLastRow() - 1;
+  if (jumlah < 1) return [];
+
+  const zona = Session.getScriptTimeZone();
+  const values = sheet.getRange(2, 1, jumlah, 6).getValues();
+
+  return values.map((row, i) => {
+    const waktu = row[0] instanceof Date
+      ? Utilities.formatDate(row[0], zona, "yyyy-MM-dd'T'HH:mm:ss")
+      : String(row[0]);
+    const status = String(row[5] || '').toLowerCase();
+    return {
+      id: i + 2,
+      waktu: waktu,
+      tanggal: waktu,
+      nama: String(row[1]),
+      kelas: String(row[2]),
+      alasan: String(row[3]),
+      harapan: String(row[4]),
+      status: STATUS_BOLEH.indexOf(status) >= 0 ? status : 'menunggu'
+    };
+  }).reverse();
+}
+
+function ubahStatusAdmin(id, status) {
+  const baris = Number(id);
+  status = String(status || '').toLowerCase();
+  if (STATUS_BOLEH.indexOf(status) < 0) throw new Error('Status tidak valid.');
+
+  const sheet = ambilSheet();
+  if (!Number.isInteger(baris) || baris < 2 || baris > sheet.getLastRow()) {
+    throw new Error('Data pendaftar tidak ditemukan.');
+  }
+  sheet.getRange(baris, 6).setValue(status);
+  return { id: baris, status: status };
+}
+
+function doGet(e) {
+  const callback = (e && e.parameter && e.parameter.callback) || 'callback';
+
+  try {
+    const action = e.parameter.action;
+    const email = verifikasiGoogle(e.parameter.token);
+
+    if (action === 'verifikasi-token') {
+      return jsonp(callback, { success: true, verified: true, email: email });
     }
-
-    tbody.innerHTML = filtered.map(p => `
-      <tr>
-        <td>${escapeHTML(p.nama)}</td>
-        <td>${escapeHTML(p.kelas)}</td>
-        <td>${formatTanggal(p.tanggal)}</td>
-        <td>
-          <span class="status-badge status-${escapeHTML(p.status)}">
-            ${statusLabel[p.status] || 'Menunggu'}
-          </span>
-        </td>
-        <td>
-          <a href="detail.html?id=${encodeURIComponent(p.id || p.nama)}"
-             class="btn-detail">Detail</a>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function escapeHTML(value) {
-    return String(value ?? '').replace(/[&<>"']/g, char => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    })[char]);
-  }
-
-  function filterStatus(status) {
-    currentFilter = status;
-
-    document.querySelectorAll('.filter-chip')
-      .forEach(chip => chip.classList.remove('active'));
-
-    const chip = document.getElementById(
-      'filter' + status.charAt(0).toUpperCase() + status.slice(1)
-    );
-
-    if (chip) chip.classList.add('active');
-    renderTable();
-  }
-
-  async function loadPendaftaran() {
-    const tbody = document.getElementById('pendaftaranTable');
-    if (tbody) {
-      tbody.innerHTML =
-        '<tr><td colspan="5">Memuat data...</td></tr>';
+    if (action === 'pendaftaran') {
+      return jsonp(callback, { success: true, data: bacaPendaftaranAdmin() });
     }
-
-    // Pengambilan data akan dihubungkan ke backend
-    // setelah endpoint dan autentikasi admin dipastikan aman.
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const search = document.getElementById('searchInput');
-
-    if (search) {
-      search.addEventListener('input', () => {
-        currentSearch = search.value;
-        renderTable();
+    if (action === 'ubah-status') {
+      return jsonp(callback, {
+        success: true,
+        data: ubahStatusAdmin(e.parameter.id, e.parameter.status)
       });
     }
+    throw new Error('Aksi tidak dikenal.');
 
-    loadPendaftaran();
-  });
-
-  window.filterStatus = filterStatus;
-})();
+  } catch (error) {
+    return jsonp(callback, {
+      success: false,
+      verified: false,
+      message: error.message
+    });
+  }
+}

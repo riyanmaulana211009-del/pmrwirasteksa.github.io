@@ -9,6 +9,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .detail-body { padding: 8px 24px 16px; }
+    .detail-row { padding: 14px 0; border-bottom: 1px solid #eee; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+    .detail-value { font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+    .aksi-judul { padding: 8px 24px 0; font-weight: 600; }
+    .aksi-status { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 24px 16px; }
+    .btn-aksi { border: none; border-radius: 10px; padding: 12px 18px; font-family: inherit; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; }
+    .btn-aksi.terima { background: #2e9b57; }
+    .btn-aksi.pikir { background: #e08a1e; }
+    .btn-aksi.tolak { background: #c0392b; }
+    .btn-aksi:disabled { opacity: .5; cursor: wait; }
+    .pesan { padding: 0 24px 20px; font-size: 14px; }
+    .kembali { display: inline-block; margin-bottom: 16px; color: #c0392b; font-weight: 600; text-decoration: none; }
+  </style>
 </head>
 <body class="page-enter">
   <button class="admin-hamburger" id="hamburger" aria-label="Buka Menu"><i class="fa-solid fa-bars"></i></button>
@@ -23,69 +39,244 @@
     <nav>
       <ul>
         <li><a href="dashboard.html" onclick="closeSidebar()"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-        <li><a href="pendaftaran.html" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
+        <li><a href="pendaftaran.html" class="active" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
         <li><a href="pengaturan.html" onclick="closeSidebar()"><i class="fa-solid fa-gear"></i> Pengaturan</a></li>
       </ul>
-    </div>
+    </nav>
     <div class="admin-sidebar-footer">
       <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
     </div>
   </div>
 
   <div class="admin-main">
-    <div class="admin-topbar" style="margin-bottom: 24px;">
-      <button class="btn-back-detail" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar</button>
+    <div class="admin-topbar">
+      <h1><i class="fa-solid fa-user"></i> Detail Pendaftar</h1>
+      <div class="admin-user">
+        <div class="admin-user-avatar">PW</div>
+        <div class="admin-user-info">
+          <h3>Admin PMR</h3>
+          <p></p>
+        </div>
+      </div>
     </div>
 
-    <div class="detail-header" id="detailHeader">
-      <div class="detail-avatar" id="detailAvatar">PW</div>
-      <h1 id="detailNama">Nama Pendaftar</h1>
-      <p id="detailKelas">Kelas</p>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-item">
-        <h4>Nama Lengkap</h4>
-        <p id="detailNamaLengkap">-</p>
-      </div>
-      <div class="detail-item">
-        <h4>Kelas</h4>
-        <p id="detailKelasView">-</p>
-      </div>
-      <div class="detail-item">
-        <h4>Tanggal Pendaftaran</h4>
-        <p id="detailTanggal">-</p>
-      </div>
-      <div class="detail-item">
-        <h4>Status</h4>
-        <p id="detailStatus">-</p>
-      </div>
-    </div>
+    <a href="pendaftaran.html" class="kembali"><i class="fa-solid fa-arrow-left"></i> Kembali ke Data Pendaftaran</a>
 
     <div class="card">
       <div class="card-header">
-        <h3><i class="fa-solid fa-comment-dots"></i> Alasan & Harapan</h3>
+        <h3 id="detailNama">Memuat data...</h3>
+        <span id="detailStatus"></span>
       </div>
-      <div class="detail-item" style="background: var(--abu-terang);">
-        <h4>Alasan Masuk PMR</h4>
-        <p id="detailAlasan" style="white-space: pre-wrap;">-</p>
-      </div>
-      <div class="detail-item" style="background: var(--abu-terang);">
-        <h4>Harapan Setelah Gabung</h4>
-        <p id="detailHarapan" style="white-space: pre-wrap;">-</p>
-      </div>
-    </div>
+      <div id="detailIsi" class="detail-body"></div>
 
-    <div class="detail-actions">
-      <button class="btn-status menunggu" onclick="updateStatus('menunggu')"><i class="fa-solid fa-clock"></i> Menunggu</button>
-      <button class="btn-status dipertimbangkan" onclick="updateStatus('dipertimbangkan')"><i class="fa-solid fa-eye"></i> Dipertimbangkan</button>
-      <button class="btn-status diterima" onclick="konfirmasiKeputusan('diterima')"><i class="fa-solid fa-check"></i> Diterima</button>
-      <button class="btn-status ditolak" onclick="konfirmasiKeputusan('ditolak')"><i class="fa-solid fa-times"></i> Ditolak</button>
-      <a href="#" class="btn-whatsapp" id="btnWa" style="margin-left: auto;"><i class="fa-brands fa-whatsapp"></i> Chat WhatsApp</a>
+      <div id="blokAksi" style="display:none">
+        <div class="aksi-judul">Keputusan Admin</div>
+        <div class="aksi-status">
+          <button class="btn-aksi terima" data-status="diterima"><i class="fa-solid fa-check"></i> Diterima</button>
+          <button class="btn-aksi pikir" data-status="dipertimbangkan"><i class="fa-solid fa-eye"></i> Dipertimbangkan</button>
+          <button class="btn-aksi tolak" data-status="ditolak"><i class="fa-solid fa-xmark"></i> Ditolak</button>
+        </div>
+      </div>
+      <div class="pesan" id="pesan"></div>
     </div>
   </div>
 
   <script src="js/auth.js"></script>
-  <script src="js/detail.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbxkZMFSUFp91J3q4CThO9lk0Hw8n445CXrM_I17AQuMmaDNDhGYKjYIDkhmrSCUHshFVA/exec';
+
+    const statusLabel = {
+      menunggu: 'Menunggu',
+      dipertimbangkan: 'Dipertimbangkan',
+      diterima: 'Diterima',
+      ditolak: 'Ditolak'
+    };
+
+    let pendaftar = null;
+
+    function el(id) { return document.getElementById(id); }
+
+    function sesiHabis() {
+      ['admin_logged_in', 'admin_email', 'admin_token']
+        .forEach(k => sessionStorage.removeItem(k));
+      alert('Sesi login habis. Silakan login lagi.');
+      window.location.href = 'login.html';
+    }
+
+    function panggilApi(params) {
+      return new Promise((resolve, reject) => {
+        const token = sessionStorage.getItem('admin_token');
+        if (!token) {
+          reject(new Error('SESI_HABIS'));
+          return;
+        }
+
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const query = new URLSearchParams(
+          Object.assign({}, params, { token: token, callback: cb })
+        );
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          bersihkan();
+          reject(new Error('Waktu habis. Coba lagi.'));
+        }, 20000);
+
+        function bersihkan() {
+          clearTimeout(timer);
+          script.remove();
+          delete window[cb];
+        }
+
+        window[cb] = function (data) {
+          bersihkan();
+          resolve(data);
+        };
+        script.onerror = function () {
+          bersihkan();
+          reject(new Error('Gagal menghubungi AdminAPI. Periksa deployment.'));
+        };
+        script.src = API_URL + '?' + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    function formatWaktu(value) {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value || '-';
+      return d.toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function baris(label, nilai) {
+      return '<div class="detail-row">' +
+        '<div class="detail-label">' + label + '</div>' +
+        '<div class="detail-value">' + escapeHTML(nilai || '-') + '</div>' +
+        '</div>';
+    }
+
+    function tampilkanStatus() {
+      el('detailStatus').innerHTML =
+        '<span class="status-badge status-' + escapeHTML(pendaftar.status) + '">' +
+        (statusLabel[pendaftar.status] || 'Menunggu') + '</span>';
+    }
+
+    function tampilkan() {
+      el('detailNama').textContent = pendaftar.nama || '-';
+      el('detailIsi').innerHTML =
+        baris('Nama', pendaftar.nama) +
+        baris('Kelas', pendaftar.kelas) +
+        baris('Waktu Mendaftar', formatWaktu(pendaftar.tanggal)) +
+        baris('Alasan Bergabung', pendaftar.alasan) +
+        baris('Harapan', pendaftar.harapan);
+      tampilkanStatus();
+      el('blokAksi').style.display = 'block';
+    }
+
+    async function muat() {
+      const id = new URLSearchParams(window.location.search).get('id');
+
+      try {
+        if (!id) throw new Error('ID pendaftar tidak ditemukan di alamat halaman.');
+
+        const hasil = await panggilApi({ action: 'pendaftaran' });
+
+        if (!hasil.success) {
+          if (/token|akses admin/i.test(hasil.message || '')) {
+            sesiHabis();
+            return;
+          }
+          throw new Error(hasil.message || 'Gagal mengambil data.');
+        }
+
+        pendaftar = (hasil.data || []).find(p => String(p.id) === String(id));
+        if (!pendaftar) throw new Error('Data pendaftar tidak ditemukan.');
+
+        tampilkan();
+
+      } catch (error) {
+        if (error.message === 'SESI_HABIS') {
+          sesiHabis();
+          return;
+        }
+        el('detailNama').textContent = 'Gagal memuat data';
+        el('detailIsi').innerHTML = '<p>' + escapeHTML(error.message) + '</p>';
+      }
+    }
+
+    async function ubahStatus(status) {
+      if (!pendaftar) return;
+
+      const yakin = confirm(
+        'Ubah status ' + pendaftar.nama + ' menjadi "' + statusLabel[status] + '"?'
+      );
+      if (!yakin) return;
+
+      const tombol = document.querySelectorAll('.btn-aksi');
+      tombol.forEach(b => { b.disabled = true; });
+      el('pesan').textContent = 'Menyimpan...';
+
+      try {
+        const hasil = await panggilApi({
+          action: 'ubah-status',
+          id: pendaftar.id,
+          status: status
+        });
+
+        if (!hasil.success) {
+          if (/token|akses admin/i.test(hasil.message || '')) {
+            sesiHabis();
+            return;
+          }
+          throw new Error(hasil.message || 'Gagal menyimpan status.');
+        }
+
+        pendaftar.status = status;
+        tampilkanStatus();
+        el('pesan').textContent =
+          'Status berhasil diubah menjadi ' + statusLabel[status] + '.';
+
+      } catch (error) {
+        if (error.message === 'SESI_HABIS') {
+          sesiHabis();
+          return;
+        }
+        el('pesan').textContent = 'Gagal: ' + error.message;
+      } finally {
+        tombol.forEach(b => { b.disabled = false; });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const emailEl = document.querySelector('.admin-user-info p');
+      const email = sessionStorage.getItem('admin_email');
+      if (emailEl && email) emailEl.textContent = email;
+
+      document.querySelectorAll('.btn-aksi').forEach(b => {
+        b.addEventListener('click', () => ubahStatus(b.dataset.status));
+      });
+
+      muat();
+    });
+  })();
+  </script>
 </body>
 </html>

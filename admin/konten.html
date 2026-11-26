@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ubah Isi Website - PMR Wira Steksa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .petunjuk { padding: 0 24px; font-size: 14px; color: #555; }
+    .konten-body { padding: 8px 24px; }
+    .konten-halaman { margin: 22px 0 10px; font-size: 16px; color: #c0392b; }
+    .konten-item { margin-bottom: 14px; }
+    .konten-item label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .konten-item small { color: #888; font-weight: 400; }
+    .konten-item input, .konten-item textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .konten-aksi { padding: 8px 24px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .btn-simpan { background: #c0392b; color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-simpan:disabled { opacity: .5; cursor: wait; }
+  </style>
+</head>
+<body class="page-enter">
+  <button class="admin-hamburger" id="hamburger" aria-label="Buka Menu"><i class="fa-solid fa-bars"></i></button>
+  <div class="admin-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-sidebar" id="sidebar">
+    <div class="admin-sidebar-header">
+      <div class="logo">PW</div>
+      <h2>PMR Wira Steksa</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html" onclick="closeSidebar()"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+        <li><a href="pendaftaran.html" onclick="closeSidebar()"><i class="fa-solid fa-users"></i> Data Pendaftaran</a></li>
+        <li><a href="konten.html" class="active" onclick="closeSidebar()"><i class="fa-solid fa-pen-to-square"></i> Ubah Isi Website</a></li>
+        <li><a href="pengaturan.html" onclick="closeSidebar()"><i class="fa-solid fa-gear"></i> Pengaturan</a></li>
+      </ul>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1><i class="fa-solid fa-pen-to-square"></i> Ubah Isi Website</h1>
+      <div class="admin-user">
+        <div class="admin-user-avatar">PW</div>
+        <div class="admin-user-info">
+          <h3>Admin PMR</h3>
+          <p></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Teks, Gambar, dan Tautan Website</h3>
+      </div>
+      <p class="petunjuk">
+        Ubah isi kolom di bawah, lalu klik <b>Simpan Semua Perubahan</b>.
+        Untuk melihat hasilnya, buka website dan tekan Ctrl+F5.
+        Mengosongkan kolom berarti kembali ke teks bawaan.
+      </p>
+      <div id="daftarKonten" class="konten-body">Memuat data...</div>
+      <div class="konten-aksi">
+        <button class="btn-simpan" id="btnSimpan">Simpan Semua Perubahan</button>
+        <span id="pesan"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbxkZMFSUFp91J3q4CThO9lk0Hw8n445CXrM_I17AQuMmaDNDhGYKjYIDkhmrSCUHshFVA/exec';
+
+    const HALAMAN = [
+      { file: '../index.html', nama: 'Beranda' },
+      { file: '../profil.html', nama: 'Profil' },
+      { file: '../struktur.html', nama: 'Struktur Organisasi' },
+      { file: '../kontak.html', nama: 'Kontak' },
+      { file: '../pendaftaran.html', nama: 'Pendaftaran' },
+      { file: '../formulir.html', nama: 'Formulir' }
+    ];
+
+    const ATRIBUT = [
+      { attr: 'data-konten', tipe: 'teks' },
+      { attr: 'data-konten-src', tipe: 'gambar' },
+      { attr: 'data-konten-href', tipe: 'tautan' }
+    ];
+
+    const NAMA_TIPE = { teks: 'teks', gambar: 'alamat gambar', tautan: 'alamat tautan' };
+
+    let daftarItem = [];
+
+    function el(id) { return document.getElementById(id); }
+
+    function sesiHabis() {
+      ['admin_logged_in', 'admin_email', 'admin_token', 'admin_sesi']
+        .forEach(k => sessionStorage.removeItem(k));
+      alert('Sesi login habis. Silakan login lagi.');
+      window.location.href = 'login.html';
+    }
+
+    function panggilApi(params, publik) {
+      return new Promise((resolve, reject) => {
+        const kirim = Object.assign({}, params);
+
+        if (!publik) {
+          const sesi = sessionStorage.getItem('admin_sesi');
+          const token = sessionStorage.getItem('admin_token');
+          if (sesi) {
+            kirim.sesi = sesi;
+          } else if (token) {
+            kirim.token = token;
+          } else {
+            reject(new Error('SESI_HABIS'));
+            return;
+          }
+        }
+
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        kirim.callback = cb;
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          bersihkan();
+          reject(new Error('Waktu habis. Coba lagi.'));
+        }, 20000);
+
+        function bersihkan() {
+          clearTimeout(timer);
+          script.remove();
+          delete window[cb];
+        }
+
+        window[cb] = function (data) {
+          bersihkan();
+          resolve(data);
+        };
+        script.onerror = function () {
+          bersihkan();
+          reject(new Error('Gagal menghubungi AdminAPI. Periksa deployment.'));
+        };
+        script.src = API_URL + '?' + new URLSearchParams(kirim).toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function bacaHalaman(h) {
+      try {
+        const res = await fetch(h.file, { cache: 'no-store' });
+        if (!res.ok) return [];
+
+        const html = await res.text();
+        const dok = new DOMParser().parseFromString(html, 'text/html');
+        const hasil = [];
+
+        dok.querySelectorAll(
+          '[data-konten], [data-konten-src], [data-konten-href]'
+        ).forEach(node => {
+          ATRIBUT.forEach(a => {
+            const kunci = node.getAttribute(a.attr);
+            if (!kunci) return;
+
+            let bawaan = '';
+            if (a.tipe === 'teks') bawaan = node.textContent.replace(/\s+/g, ' ').trim();
+            if (a.tipe === 'gambar') bawaan = node.getAttribute('src') || '';
+            if (a.tipe === 'tautan') bawaan = node.getAttribute('href') || '';
+
+            hasil.push({
+              kunci: kunci,
+              tipe: a.tipe,
+              bawaan: bawaan,
+              halaman: h.nama,
+              label: node.getAttribute('data-label') || kunci.replace(/_/g, ' ')
+            });
+          });
+        });
+
+        return hasil;
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function render() {
+      const wadah = el('daftarKonten');
+      wadah.innerHTML = '';
+
+      if (!daftarItem.length) {
+        wadah.textContent =
+          'Belum ada bagian website yang ditandai. Tambahkan data-konten pada teks di halaman website.';
+        return;
+      }
+
+      let halamanSekarang = null;
+
+      daftarItem.forEach(item => {
+        if (item.halaman !== halamanSekarang) {
+          halamanSekarang = item.halaman;
+          const judul = document.createElement('h4');
+          judul.className = 'konten-halaman';
+          judul.textContent = item.halaman;
+          wadah.appendChild(judul);
+        }
+
+        const kotak = document.createElement('div');
+        kotak.className = 'konten-item';
+
+        const label = document.createElement('label');
+        label.textContent = item.label + ' ';
+        const kecil = document.createElement('small');
+        kecil.textContent = '(' + NAMA_TIPE[item.tipe] + ')';
+        label.appendChild(kecil);
+
+        const panjang = item.tipe === 'teks' &&
+          (item.awal.length > 60 || /\n/.test(item.awal));
+        const input = document.createElement(panjang ? 'textarea' : 'input');
+        if (panjang) {
+          input.rows = 4;
+        } else {
+          input.type = 'text';
+        }
+        input.maxLength = 1500;
+        input.value = item.awal;
+        item.input = input;
+
+        kotak.appendChild(label);
+        kotak.appendChild(input);
+        wadah.appendChild(kotak);
+      });
+    }
+
+    async function muat() {
+      try {
+        const hasilKonten = await panggilApi({ action: 'konten-publik' }, true);
+        const tersimpan =
+          hasilKonten && hasilKonten.success && hasilKonten.data
+            ? hasilKonten.data
+            : {};
+
+        const semua = await Promise.all(HALAMAN.map(bacaHalaman));
+        const dilihat = new Set();
+        daftarItem = [];
+
+        semua.forEach(daftar => daftar.forEach(item => {
+          if (dilihat.has(item.kunci)) return;
+          dilihat.add(item.kunci);
+
+          const punya =
+            Object.prototype.hasOwnProperty.call(tersimpan, item.kunci) &&
+            tersimpan[item.kunci] !== '';
+          item.awal = punya ? tersimpan[item.kunci] : item.bawaan;
+          daftarItem.push(item);
+        }));
+
+        render();
+      } catch (error) {
+        el('daftarKonten').textContent = 'Gagal memuat: ' + error.message;
+      }
+    }
+
+    async function simpan() {
+      const berubah = daftarItem.filter(i => i.input && i.input.value !== i.awal);
+      const tombol = el('btnSimpan');
+
+      if (!berubah.length) {
+        el('pesan').textContent = 'Tidak ada perubahan.';
+        return;
+      }
+
+      tombol.disabled = true;
+      let sukses = 0;
+
+      try {
+        for (const item of berubah) {
+          el('pesan').textContent =
+            'Menyimpan ' + (sukses + 1) + ' dari ' + berubah.length + '...';
+
+          const hasil = await panggilApi({
+            action: 'konten-simpan',
+            kunci: item.kunci,
+            nilai: item.input.value
+          });
+
+          if (!hasil.success) {
+            if (/token|sesi|akses admin/i.test(hasil.message || '')) {
+              sesiHabis();
+              return;
+            }
+            throw new Error(hasil.message || 'Gagal menyimpan.');
+          }
+
+          item.awal = item.input.value;
+          sukses++;
+        }
+
+        el('pesan').textContent =
+          sukses + ' perubahan tersimpan. Buka website lalu tekan Ctrl+F5.';
+
+      } catch (error) {
+        if (error.message === 'SESI_HABIS') {
+          sesiHabis();
+          return;
+        }
+        el('pesan').textContent =
+          'Gagal: ' + error.message + ' (tersimpan: ' + sukses + ')';
+      } finally {
+        tombol.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const emailEl = document.querySelector('.admin-user-info p');
+      const email = sessionStorage.getItem('admin_email');
+      if (emailEl && email) emailEl.textContent = email;
+
+      el('btnSimpan').addEventListener('click', simpan);
+      muat();
+    });
+  })();
+  </script>
+</body>
+</html>
